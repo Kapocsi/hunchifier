@@ -15,29 +15,33 @@ import {
   IoMoon,
 } from "react-icons/io5";
 
-// import { useTheme } from "next-themes";
+import { useTheme } from "next-themes";
 
 export default function HeaderClient({ navItems }: { navItems: any }) {
-  //   const { theme, setTheme } = useTheme();
+  const { theme, setTheme, systemTheme } = useTheme();
 
-  //   const toggleTheme = () => {
-  //     console.log("toggling theme");
-  //     if (theme === "light") {
-  //       setTheme("dark");
-  //     }
-  //     if (theme === "dark") {
-  //       setTheme("light");
-  //     }
-  //   };
+  const toggleTheme = () => {
+    // If the user has yet to push the button, the theme is set to "system", this accounts for that
+    const displayed_theme = /light|dark/.test(theme || "")
+      ? theme
+      : systemTheme;
+
+    if (displayed_theme === "light") {
+      setTheme("dark");
+    }
+    if (displayed_theme === "dark") {
+      setTheme("light");
+    }
+  };
 
   // such a hack
   const navItemsWithTheme = [
     ...navItems,
-    // {
-    //   icon: theme === "light" ? "IoMoon" : "IoSunny",
-    //   label: theme === "light" ? <IoMoon size={24} /> : <IoSunny size={24} />,
-    //   logoutAction: toggleTheme,
-    // },
+    {
+      icon: theme === "light" ? "IoMoon" : "IoSunny",
+      label: "Theme",
+      action: toggleTheme,
+    },
   ];
 
   return (
@@ -56,19 +60,21 @@ export default function HeaderClient({ navItems }: { navItems: any }) {
   );
 }
 
-const NavItem = ({
+function NavItem({
   href,
   icon,
   label,
-  logoutAction,
+  action,
   hideOnMobile,
+  awaitClient,
 }: {
   href?: any;
   icon: any;
   label: any;
-  logoutAction?: any;
+  action?: any;
   hideOnMobile?: boolean;
-}) => {
+  awaitClient?: boolean;
+}) {
   const icons: { [key: string]: any } = {
     IoHome: IoHome,
     IoStatsChart: IoStatsChart,
@@ -81,22 +87,18 @@ const NavItem = ({
   };
 
   const IconComponent = icons[icon as string];
-
   const pathname = usePathname();
-
   const isActive = pathname === href;
 
-  return (
-    <>
-      {href ? (
+  if (href) {
+    return (
+      <>
         <Link
           href={href || "#"}
           className="flex flex-row items-center space-x-6"
         >
           <Button
-            className={`text-sm text-primary hidden md:block ${
-              isActive ? "text-muted-foreground" : "text-primary"
-            }`}
+            className={`text-sm text-primary hidden md:block ${isActive ? "text-muted-foreground" : "text-primary"}`}
             variant="link"
           >
             {label}
@@ -108,23 +110,27 @@ const NavItem = ({
             `}
           />
         </Link>
-      ) : (
-        <form
-          action={logoutAction}
-          className="flex flex-row items-center space-x-6 md:space-x-0"
-        >
-          <Button
-            type="submit"
-            className="text-sm text-primary hidden md:block"
-            variant="link"
-          >
-            <p>{label}</p>
-          </Button>
-          <button type="submit" className="md:hidden">
-            <IconComponent size={24} />
-          </button>
-        </form>
-      )}
-    </>
+      </>
+    );
+  }
+  return (
+    <form
+      action={action}
+      className="flex flex-row items-center space-x-6 md:space-x-0"
+    >
+      {/* Text Version For Desktop */}
+      <Button
+        type="submit"
+        className="text-sm text-primary hidden md:block"
+        variant="link"
+      >
+        {label}
+      </Button>
+
+      {/* Icon Version For Small Screens */}
+      <button type="submit" className="md:hidden">
+        <IconComponent size={24} />
+      </button>
+    </form>
   );
-};
+}

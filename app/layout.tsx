@@ -37,13 +37,13 @@ export default async function RootLayout({
       suppressHydrationWarning
       className={cn(
         "min-h-screen bg-background font-sans antialiased",
-        fontSans.variable
+        fontSans.variable,
       )}
     >
       <body>
-        {/* <ThemeProvider attribute="class" defaultTheme="system" enableSystem> */}
-        <main>{children}</main>
-        {/* </ThemeProvider> */}
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <main>{children}</main>
+        </ThemeProvider>
       </body>
     </html>
   );
